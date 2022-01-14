@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>golf_smart</name>
+  <version>0.1.0</version>
+  <description>
+    <p>
+        OSU AIMS Lab - Golf Capstone Project
+    </p>
+    <p>
+        This package contains scripts and launch files for the automated
+        golfing robot control system in the AIMS Lab @ Ohio State.
+      </p>
+    <p>
+        This package is designed specifically for the Motoman MH5L robot. 
+      </p>
+  </description>
+
+
+  <!-- META DATA -->
+  <license>Apache 2.0</license>
+  <author>Adam Buynak</author>
+  <maintainer email="acbuynak@gmail.com">Adam Buynak. AIMS Lab @ The Ohio State University</maintainer>
+
+
+  <!-- DEPENDENCIES -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <test_depend>roslaunch</test_depend>
+
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>motoman_mh5_support</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+
+
+  <!-- PACKAGE IS NOT ARCHITECTURE-SPECIFIC ONCE COMPILED-->
+  <export>
+    <architecture_independent/>
+  </export>
+</package>

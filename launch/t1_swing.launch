@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Tier1 Launch File -->
+
+<launch>
+
+    <!-- Launch actual code to test -->
+    <node pkg="golf_smart" type="golf_swing.py" name="golf_swing" output="screen" required="true" />
+
+</launch>

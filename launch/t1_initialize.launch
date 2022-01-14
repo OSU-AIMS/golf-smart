@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Tier1 Launch File -->
+
+<launch>
+
+    <!-- Configuration -->
+    <arg name="digital_twin" default="true" />
+    <arg name="sim" default="true" />
+    <arg name="robot_ip" unless="$(arg sim)" />
+    <arg name="controller" unless="$(arg sim)" value="fs100" />
+
+
+    <!-- Joint names -->
+    <rosparam command="load" file="$(find motoman_mh5_support)/config/joint_names_mh5.yaml"/>
+
+
+    <!-- Load universal robot description format (URDF) -->
+    <param name="robot_description" command="xacro  '$(find motoman_mh5_support)/urdf/mh5l.xacro'"/>
+
+
+    <!-- Robot Interface -->
+    <group if="$(arg sim)">
+        <include file="$(find industrial_robot_simulator)/launch/robot_interface_simulator.launch" />
+    </group>
+    <group unless="$(arg sim)">
+        <include file="$(find motoman_mh5_support)/launch/robot_interface_streaming_mh5l.launch" >
+            <arg name="robot_ip" value="$(arg robot_ip)"/>
+            <arg name="controller" value="$(arg controller)"/>
+        </include>
+    </group>
+
+
+    <!-- Publish tf2 transforms -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+
+    <!-- Digital Twin -->
+    <group if="$(arg digital_twin)">
+        <node name="rviz" pkg="rviz" type="rviz" args="-d $(find golf_smart)/config/digital_twin.rviz" required="true" />
+    </group>
+
+
+</launch>

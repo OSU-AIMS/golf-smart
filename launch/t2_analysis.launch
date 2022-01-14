@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Tier2 Launch File -->
+
+<launch>
+
+    <!-- Configuration -->
+    <arg name="plot_jointspace" default="true" />
+
+
+     <!-- Load RQT with preconfigured perspective -->
+    <group if="$(arg plot_jointspace)">
+        <node name="RQT_TestViewer" pkg="rqt_gui" type="rqt_gui" respawn="false" output="screen" 
+            args="--perspective-file $(find golf_smart)/config/plot_jointspace.perspective"/>  
+    </group>
+
+
+</launch>
