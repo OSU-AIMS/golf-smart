@@ -16,7 +16,7 @@
 
 
     <!-- Load universal robot description format (URDF) -->
-    <param name="robot_description" command="xacro  '$(find motoman_mh5_support)/urdf/mh5l.xacro'"/>
+    <param name="robot_description" command="xacro  '$(find golf_eightiron_support)/urdf/mh5l_8iron.xacro'"/>
 
 
     <!-- Robot Interface -->
