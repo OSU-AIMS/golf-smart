@@ -72,8 +72,11 @@ def reset_joints_safe():
 
 def Gauss(t_pts, sigma, mean, amp ):
     f = np.zeros(len(t_pts))
+    time_end = t_pts[-1]+(t_pts[1]-t_pts[0])
+    max_sig = time_end/6
+    sigma_adj = sigma*max_sig
     for i in range(len(t_pts)):
-        f[i] = amp*np.exp(-(t_pts[i]-mean)**2/(2*sigma**2))
+        f[i] = amp*np.exp(-(t_pts[i]-mean)**2/(2*sigma_adj**2))
     
     return f
 
@@ -96,8 +99,11 @@ def num_integrate(vel,t_pts):
 # In[122]:
 
 
-def find_amp(sigma,delta_theta):
-    amp = delta_theta/(sigma*np.sqrt(2*np.pi))
+def find_amp(sigma,delta_theta,t_pts):
+    time_end = t_pts[-1]+(t_pts[1]-t_pts[0])
+    max_sig = time_end/6
+    sigma_adj = sigma*max_sig
+    amp = delta_theta/(sigma_adj*np.sqrt(2*np.pi))
     return amp
 
 
@@ -109,7 +115,7 @@ def swing_define(Joint_START,Joint_END,sigmas,swing_time,delta_t):
 
     # go to start
     traj_plan_start = SimpleTrajectoryActionClient(joint_names)
-    traj_plan_start.add_joint_waypoint(Joint_START,2,[0,0,0,0,0,0])
+    traj_plan_start.add_joint_waypoint(Joint_START,3,[0,0,0,0,0,0])
     traj_plan_start.send_trajectory()
 
     #define swing values
@@ -124,13 +130,13 @@ def swing_define(Joint_START,Joint_END,sigmas,swing_time,delta_t):
    
     sigma_s = sigmas[0]
     mean_s = swing_time/2
-    amp_s = find_amp(sigma_s, S_delta_t)
+    amp_s = find_amp(sigma_s, S_delta_t,t_pts)
     vel_s = Gauss(t_pts,sigma_s,mean_s,amp_s)
     S = S_start + num_integrate(vel_s,t_pts)
 
     sigma_b = sigmas[4]
     mean_b = swing_time/2
-    amp_b = find_amp(sigma_b, B_delta_t)
+    amp_b = find_amp(sigma_b, B_delta_t,t_pts)
     vel_b = -1*Gauss(t_pts,sigma_b,mean_b,amp_b)
     B = B_start + num_integrate(vel_b,t_pts)
 
@@ -149,7 +155,7 @@ def swing_define(Joint_START,Joint_END,sigmas,swing_time,delta_t):
     traj_plan_swing = SimpleTrajectoryActionClient(joint_names)
     print(t_pts)
     for i in range(len(t_pts)):
-        traj_plan_swing.add_joint_waypoint([S[i],L[i],U[i],R[i],B[i],T[i]],t_pts[i],[vel_s[i],vel_l[i],vel_u[i],vel_r[i],vel_b[i],vel_t[i]])
+        traj_plan_swing.add_joint_waypoint([S[i],L[i],U[i],R[i],B[i],T[i]],t_pts[i]+4,[vel_s[i],vel_l[i],vel_u[i],vel_r[i],vel_b[i],vel_t[i]])
     traj_plan_swing.send_trajectory()
 
 
@@ -159,8 +165,8 @@ if __name__ == '__main__':
 
     Joint_START = [-np.pi/2,np.pi/24,-np.pi/4,np.pi/2,-np.pi/2,-np.pi/2]
     Joint_END = [np.pi/2,np.pi/24,-np.pi/4,np.pi/2,np.pi/2,-np.pi/2]
-    sigmas = [1,0,0,0,.25,0]
-    swing_time = 10
-    delta_t = 2
+    sigmas = [.6,0,0,0,.25,0]
+    swing_time = 4
+    delta_t = swing_time/100
     swing_define(Joint_START,Joint_END,sigmas,swing_time,delta_t)
     #reset_joints()
