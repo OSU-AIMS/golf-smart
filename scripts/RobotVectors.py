@@ -113,9 +113,10 @@ def find_amp(sigma,delta_theta,t_pts):
 # THIS IS the S FUNCTION PART
 def swing_define(Joint_START,Joint_END,sigmas,swing_time,delta_t):
 
+    t_start = 5
     # go to start
     traj_plan_start = SimpleTrajectoryActionClient(joint_names)
-    traj_plan_start.add_joint_waypoint(Joint_START,3,[0,0,0,0,0,0])
+    traj_plan_start.add_joint_waypoint(Joint_START,t_start,[0,0,0,0,0,0])
     traj_plan_start.send_trajectory()
 
     #define swing values
@@ -129,7 +130,7 @@ def swing_define(Joint_START,Joint_END,sigmas,swing_time,delta_t):
     t_pts = np.arange(0,swing_time,delta_t)
    
     sigma_s = sigmas[0]
-    mean_s = swing_time/2
+    mean_s = swing_time/2.15
     amp_s = find_amp(sigma_s, S_delta_t,t_pts)
     vel_s = Gauss(t_pts,sigma_s,mean_s,amp_s)
     S = S_start + num_integrate(vel_s,t_pts)
@@ -155,7 +156,7 @@ def swing_define(Joint_START,Joint_END,sigmas,swing_time,delta_t):
     traj_plan_swing = SimpleTrajectoryActionClient(joint_names)
     print(t_pts)
     for i in range(len(t_pts)):
-        traj_plan_swing.add_joint_waypoint([S[i],L[i],U[i],R[i],B[i],T[i]],t_pts[i]+4,[vel_s[i],vel_l[i],vel_u[i],vel_r[i],vel_b[i],vel_t[i]])
+        traj_plan_swing.add_joint_waypoint([S[i],L[i],U[i],R[i],B[i],T[i]],t_pts[i]+t_start+1,[vel_s[i],vel_l[i],vel_u[i],vel_r[i],vel_b[i],vel_t[i]])
     traj_plan_swing.send_trajectory()
 
 
@@ -163,10 +164,10 @@ def swing_define(Joint_START,Joint_END,sigmas,swing_time,delta_t):
 
 if __name__ == '__main__':
 
-    Joint_START = [-np.pi/2,np.pi/24,-np.pi/4,np.pi/2,-np.pi/2,-np.pi/2]
-    Joint_END = [np.pi/2,np.pi/24,-np.pi/4,np.pi/2,np.pi/2,-np.pi/2]
-    sigmas = [.6,0,0,0,.25,0]
-    swing_time = 4
+    Joint_START = [-np.pi/4,np.pi/24,-np.pi/4,np.pi/2,-np.pi/3,np.pi]
+    Joint_END = [np.pi/4,np.pi/24,-np.pi/4,np.pi/2,np.pi/3,np.pi]
+    sigmas = [.8,0,0,0,.15,0]
+    swing_time = 8
     delta_t = swing_time/100
     swing_define(Joint_START,Joint_END,sigmas,swing_time,delta_t)
     #reset_joints()
