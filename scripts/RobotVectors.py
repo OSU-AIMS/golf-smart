@@ -36,7 +36,8 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 ### Robot swing control
 # In[120]:
-joint_names = ['joint_1_s', 'joint_2_l', 'joint_3_u', 'joint_4_r', 'joint_5_b', 'joint_6_t']
+# joint_names = ['joint_1_s', 'joint_2_l', 'joint_3_u', 'joint_4_r', 'joint_5_b', 'joint_6_t']
+joint_names = rospy.get_param('controller_joint_names')
 
 def test():
     # Parameters
