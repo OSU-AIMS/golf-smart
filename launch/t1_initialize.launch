@@ -16,8 +16,8 @@
 
 
     <!-- Load universal robot description format (URDF) -->
-    <param name="robot_description" command="xacro  '$(find golf_club_support)/urdf/mh5l_6iron.xacro'"/>
-
+    <param name="robot_description" command="xacro  '$(find golf_club_support)/urdf/mh5l_6iron.xacro'"/> 
+  
 
     <!-- Robot Interface -->
     <group if="$(arg sim)">
