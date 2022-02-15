@@ -106,19 +106,38 @@ def gaussian_swing_define(Joint_START,Joint_END,sigmas,swing_time,delta_t):
         traj_plan_swing.add_joint_waypoint([S[i],L[i],U[i],R[i],B[i],T[i]],t_pts[i]+t_start+1,[vel_s[i],vel_l[i],vel_u[i],vel_r[i],vel_b[i],vel_t[i]])
     traj_plan_swing.send_trajectory()
 
+    fig4= plt.figure(figsize = (14,7))
+
+    # defining the axis
+    ax_S2 = fig4.add_subplot(1,2,1)
+    ax_B2 = fig4.add_subplot(1,2,2)
+
+    #Plotting the velocity and positions on each other
+    ax_S2.plot(t_pts,vel_s,'red')
+    ax_S2.plot(t_pts,S,'blue')
+    ax_S2.set_title('S Joint')
+    ax_B2.plot(t_pts,vel_b,'red')
+    ax_B2.plot(t_pts,B,'blue')
+    ax_B2.set_title('B Joint')
+
+    # Showing the above plot
+    plt.legend(['Velocity','Position'])
+    plt.show()
+
 
 ## Tophat Curve Model
 
+"""
 def swing(amp,flatness,width,center,t_pts):
     vel = np.zeroes(len(t_pts))
     for i in range(len((t_pts))):
         vel[i] = amp/(1+abs((t_pts[i]-center)/width)**(flatness))
     return vel
+"""
 
-
-def sigmoid(amp,width,center,t_pts):
-    vel = np.zeros(100)
-    n = 100/t_pts[-1]
+def sigmoid(amp,width,center,t_pts,mag_vel):
+    vel = np.zeros(len(t_pts))
+    n = 10*mag_vel
     half = len(t_pts)/2
     right = center-width
     for i in range(int(half)):
@@ -139,26 +158,34 @@ def find_width(amp,delta_theta):
 
 
 def tophat_swing_define(Joint_START,Joint_END,amp_s,amp_b,swing_time,delta_t):
-    t_start = 0
+
+    mag_vel = np.sqrt(amp_s**2+amp_b**2)
+    t_start = 2
+    # go to start
+    traj_plan_start = SimpleTrajectoryActionClient(joint_names)
+    traj_plan_start.add_joint_waypoint(Joint_START,t_start,[0,0,0,0,0,0])
+    traj_plan_start.send_trajectory()
+
+    t_0 = 0
     t_end = swing_time
-    t_pts = np.arange(t_start,t_end,delta_t)
+    t_pts = np.arange(t_0,t_end,delta_t)
 
     # Hips move Gauss S
-    S_start = -Joint_START[0]
+    S_start = Joint_START[0]
     S_end = Joint_END[0]
     S_delta_theta = (S_end-S_start)
-    center_s = .8
+    center_s = swing_time/2.3
     width_s = find_width(amp_s,S_delta_theta)
-    vel_s = sigmoid(amp_s,width_s,center_s,t_pts)
+    vel_s = sigmoid(amp_s,width_s,center_s,t_pts,mag_vel)
     S = S_start + num_integrate(vel_s,t_pts)
     
     # Wrist Moves Gauss B
     B_start = Joint_START[4]
-    B_end = -Joint_END[4]
-    B_delta_theta = (B_end-B_start)*-1
-    center_b = 1
+    B_end = Joint_END[4]
+    B_delta_theta = (B_end-B_start)
+    center_b = swing_time/2
     width_b = find_width(amp_b,B_delta_theta)
-    vel_b = -1*sigmoid(amp_b,width_b,center_b,t_pts)
+    vel_b = sigmoid(amp_b,width_b,center_b,t_pts,mag_vel)
     B = B_start + num_integrate(vel_b,t_pts)
 
     L = np.ones(len(t_pts))*Joint_START[1]
@@ -170,7 +197,31 @@ def tophat_swing_define(Joint_START,Joint_END,amp_s,amp_b,swing_time,delta_t):
     vel_r = np.ones(len(t_pts))*0
     vel_t = np.ones(len(t_pts))*0
 
+    traj_plan_swing = SimpleTrajectoryActionClient(joint_names)
+    for i in range(len(t_pts)):
+        traj_plan_swing.add_joint_waypoint([S[i],L[i],U[i],R[i],B[i],T[i]],t_pts[i]+t_start+1,[vel_s[i],vel_l[i],vel_u[i],vel_r[i],vel_b[i],vel_t[i]])
+    traj_plan_swing.send_trajectory()
+    print(B)
+    print(S)
 
+
+    fig4= plt.figure(figsize = (14,7))
+
+    # defining the axis
+    ax_S2 = fig4.add_subplot(1,2,1)
+    ax_B2 = fig4.add_subplot(1,2,2)
+
+    #Plotting the velocity and positions on each other
+    ax_S2.plot(t_pts,vel_s,'red')
+    ax_S2.plot(t_pts,S,'blue')
+    ax_S2.set_title('S Joint')
+    ax_B2.plot(t_pts,vel_b,'red')
+    ax_B2.plot(t_pts,B,'blue')
+    ax_B2.set_title('B Joint')
+
+    # Showing the above plot
+    plt.legend(['Velocity','Position'])
+    plt.show()
 
 ## Main
 
@@ -200,10 +251,11 @@ if __name__ == '__main__':
 
     elif sys.argv[1] == '2':
         ## tophat curve
-        Joint_START = [-np.pi/4,np.pi/24,-np.pi/4,np.pi/2,-np.pi/3,np.pi]
-        Joint_END = [np.pi/4,np.pi/24,-np.pi/4,np.pi/2,np.pi/3,np.pi]
-        amp_s = 4.3
-        amp_b = 6
-        swing_time = 8
-        delta_t = swing_time/100
+        Joint_START = [-np.pi/3,np.pi/24,-np.pi/4,np.pi/2,-np.pi/3,np.pi]
+        Joint_END = [np.pi/3,np.pi/24,-np.pi/4,np.pi/2,np.pi/3,np.pi]
+        amp_s = 2
+        amp_b = 4
+        swing_time = 4
+        delta_t = swing_time/1000
         tophat_swing_define(Joint_START,Joint_END,amp_s,amp_b,swing_time,delta_t)
+        
