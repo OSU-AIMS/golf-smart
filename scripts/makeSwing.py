@@ -26,13 +26,22 @@ from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 index = np.arange(0,7,1)
-print(index)
-S = [-np.pi/2,-np.pi/3,-np.pi/6,0,np.pi/6,np.pi/3,np.pi/2]
-L = [.0799,.4289,.7338,.8011,.7616,.7616,.6299]
-U = [.5850,.5085,-.1047,-.1047,.1899,.8684,1.133]
-R = [2.492,2.499,2.019,np.pi/2,1.477,.6686,.6686]
-B = [-1.229,-1.225,-1.246,0,.6196,1.362,1.526]
+# print(index)
+# S = [-np.pi/2,-np.pi/3,-np.pi/6,0,np.pi/6,np.pi/3,np.pi/2]
+# L = [.0799,.4289,.7338,.8011,.7616,.7616,.6299]
+# U = [.5850,.5085,-.1047,-.1047,.1899,.8684,1.133]
+# R = [2.492,2.499,2.019,np.pi/2,1.477,.6686,.6686]
+# B = [-1.229,-1.225,-1.246,0,.6196,1.362,1.526]
+# T = [np.pi,np.pi,np.pi,np.pi,np.pi,np.pi,np.pi]
+
+# NEW SUPER POINTS
+S = [-np.pi/2,-np.pi/3,-np.pi/6,0,np.pi/6,np.pi/3,np.pi/2-.2]
+L = [.0799,.4289,.7338,.8011,.7617,.7616,.6299]
+U = [.5850,.250,-.1047,-.1047,.1899,.8684,1.133]
+R = [2.492,2.250,2.019,np.pi/2,1.277,.6686,.6686]
+B = [-1.229,-1.225,-.950,0,.6196,1.362,1.526]
 T = [np.pi,np.pi,np.pi,np.pi,np.pi,np.pi,np.pi]
+
 
 
 
@@ -47,34 +56,31 @@ ax.set_xlabel('Time',fontsize = 14)
 ax.set_ylabel('radians',fontsize = 14)
 plt.show()
 
-pts = 100
 
 
-def Interp(theta,pts):
-    add = np.floor(pts/(len(theta)-1))
-    parts = np.zeros((6,int(add)))
-    long_theta = []
-                     
+intervals = 16
+
+
+def Interp(theta,intervals):
+    long_theta = [] 
+    parts = np.zeros((6,intervals-1))
     for i in range(int(len(theta)-1)):
-        delta = (theta[i+1]-theta[i])/add
-        parts[i] = np.linspace(theta[i],theta[i+1]-delta,int(add))
+        delta = (theta[i+1]-theta[i])/intervals
+        parts[i] = np.linspace(theta[i],theta[i+1]-delta,intervals-1)
     for j in range(int(len(parts))):
         long_theta = np.append(long_theta,parts[j])
     
-    while len(long_theta)<pts:
-        long_theta = np.append(long_theta,theta[-1])
-    
     return long_theta
 
-
-
-long_S = Interp(S,pts)
-long_L = Interp(L,pts)
-long_U = Interp(U,pts)
-long_R = Interp(R,pts)
-long_B = Interp(B,pts)
-long_T = Interp(T,pts)
-    
+long_S = Interp(S,intervals)
+long_L = Interp(L,intervals)
+long_U = Interp(U,intervals)
+long_R = Interp(R,intervals)
+long_B = Interp(B,intervals)
+long_T = Interp(T,intervals)
+                     
+pts = len(long_R)
+print(len(long_R))
 print(long_R)
 
 t_start = 0
@@ -155,7 +161,7 @@ class Robot():
         axis4 = np.dot(axis4,self.rotateAxis(angles[2], axis2))
 
         #Fourth rotation
-        axis3 = np.dot(axis3,self.rotateAxis(angles[3], v3/self.links[2]))
+        axis3 = np.dot(axis3,self.rotateAxis(angles[3], v3/self.links[2])) # Can only rotate around unit vectors
         axis4 = np.dot(axis4,self.rotateAxis(angles[3], v3/self.links[2]))
         
         #Fifth Rotation
@@ -196,9 +202,9 @@ def drawRobot2(v1,v2,v3,v4,v5):
     x[4],y[4],z[4] = v1+v2+v3+v4
     x[5],y[5],z[5] = v1+v2+v3+v4+v5
     
-    print(x)
-    print(y)
-    print(z)
+    # print(x)
+    # print(y)
+    # print(z)
     
     return x,y,z
 
@@ -209,12 +215,14 @@ links_in = real_links*(1/25.4)
 #print(links)
 axis = [[0,0,1],[0,1,0],[0,1,0],[0,1,0],[1,0,0]]
 
-S = [-np.pi/2,-np.pi/3,-np.pi/6,0,np.pi/6,np.pi/3,np.pi/2]
-L = [.0799,.4289,.7338,.8011,.7616,.7616,.6299]
-U = [.5850,.5085,-.1047,-.1047,.1899,.8684,1.133]
-R = [2.492,2.499,2.019,np.pi/2,1.477,.6686,.6686]
-B = [-1.229,-1.225,-1.246,0,.6196,1.362,1.526]
+# NEW SUPER POINTS
+S = [-np.pi/2,-np.pi/3,-np.pi/6,0,np.pi/6,np.pi/3,np.pi/2-.2]
+L = [.0799,.4289,.7338,.8011,.7617,.7616,.6299]
+U = [.5850,.250,-.1047,-.1047,.1899,.8684,1.133]
+R = [2.492,2.250,2.019,np.pi/2,1.277,.6686,.6686]
+B = [-1.229,-1.225,-.950,0,.6196,1.362,1.526]
 T = [np.pi,np.pi,np.pi,np.pi,np.pi,np.pi,np.pi]
+
 
 #anglesDesired = [np.pi/4,0,0,np.pi/2,np.pi/2,0]
 anglesDesired = [S[3],L[3],U[3],R[3],B[3]-np.pi/4,T[3]]
@@ -226,7 +234,7 @@ anglesConvention = [-1*anglesDesired[0],(np.pi/4-anglesDesired[1]),\
 
 Moto = Robot(links = links_in, axis = axis)
 End = Moto.findEnd(anglesConvention)
-print([End[0],End[1],End[2]])
+#print([End[0],End[1],End[2]])
 
 #Show on a 3D plot
 
@@ -276,7 +284,7 @@ for i in range(pts):
 
     
     
-print(x_end)
+#print(x_end)
 
 # creating an empty canvas
 fig2 = plt.figure(figsize = (7,7))
@@ -295,9 +303,11 @@ plt.title('Swing Path',fontsize=13)
 plt.show()
 
 
+
+
 def makeTime(x_end,y_end,z_end,max_vel):
     #Initalize Everything
-    pts = 100
+    pts = len(x_end)
     time = 0
     t_array = np.array([0])
     vel = np.zeros(pts,)
@@ -305,8 +315,8 @@ def makeTime(x_end,y_end,z_end,max_vel):
     
     #Make the velocity of the actual club a gauss curve
     for i in range(len(t_pts-1)):
-        sigma = 25
-        vel[i] = max_vel*np.exp(-(i-50)**2/(2*sigma**2))
+        sigma = 20
+        vel[i] = max_vel*np.exp(-(i-(pts/2))**2/(2*sigma**2))
         
     for i in range(pts-1):
         dist[i] = np.sqrt((x_end[i+1]-x_end[i])**2+(y_end[i+1]-y_end[i])**2+(z_end[i+1]-z_end[i])**2)
@@ -315,12 +325,11 @@ def makeTime(x_end,y_end,z_end,max_vel):
         
     return t_array,vel,dist
    
-
-
-
-max_vel = 30*12 #in/sec
+    
+max_vel = 10*12 #in/sec
 t_array,vel,dist = makeTime(x_end,y_end,z_end,max_vel)
 
+print('Printing: t_array, size(t_array), vel, dist')
 print(t_array)
 print(np.size(t_array))
 print(vel)
@@ -360,20 +369,27 @@ for i in range(int(len(long_S)-1)):
     vel_b = np.append(vel_b,(long_B[i+1]-long_B[i])/(t_array[i+1]-t_array[i]))
     vel_t = np.append(vel_t,(long_T[i+1]-long_T[i])/(t_array[i+1]-t_array[i]))
 
+print('Printing vel_s then vel_u')
 print(vel_s)
 print(vel_u)
 
 
-# # Swinging:
-# joint_names = ['joint_1_s', 'joint_2_l', 'joint_3_u', 'joint_4_r', 'joint_5_b', 'joint_6_t']
-# Joint_START = [long_S[0],long_L[0],long_U[0],long_R[0],long_B[0],long_T[0]]
-# t_start = 3
-# # go to start
-# traj_plan_start = SimpleTrajectoryActionClient(joint_names)
-# traj_plan_start.add_joint_waypoint(Joint_START,t_start,[0,0,0,0,0,0])
-# traj_plan_start.send_trajectory()
+# Swinging:
+joint_names = ['joint_1_s', 'joint_2_l', 'joint_3_u', 'joint_4_r', 'joint_5_b', 'joint_6_t']
+Joint_START = [long_S[0],long_L[0],long_U[0],long_R[0],long_B[0],long_T[0]]
+t_start = 3
+# go to start
+traj_plan_start = SimpleTrajectoryActionClient(joint_names)
+traj_plan_start.add_joint_waypoint(Joint_START,t_start,[0,0,0,0,0,0])
+traj_plan_start.send_trajectory()
 
-# traj_plan_swing = SimpleTrajectoryActionClient(joint_names)
-# for i in range(len(t_array)):
-#     traj_plan_swing.add_joint_waypoint([long_S[i],long_L[i],long_U[i],long_R[i],long_B[i],long_T[i]],t_array[i]+t_start,[vel_s[i],vel_l[i],vel_u[i],vel_r[i],vel_b[i],vel_t[i]])
-# traj_plan_swing.send_trajectory()
+traj_plan_swing = SimpleTrajectoryActionClient(joint_names)
+for i in range(len(t_array)):
+    traj_plan_swing.add_joint_waypoint([long_S[i],long_L[i],long_U[i],long_R[i],long_B[i],long_T[i]],t_array[i]+t_start,[vel_s[i],vel_l[i],vel_u[i],vel_r[i],vel_b[i],vel_t[i]])
+for j in range(int(len(t_array)/2)):
+    j+=1
+    traj_plan_swing.add_joint_waypoint([long_S[-j],long_L[-j],long_U[-j],long_R[-j],long_B[-j],long_T[-j]],t_array[j]*2+t_start+t_array[-1],[vel_s[-j],vel_l[-j],vel_u[-j],vel_r[-j],vel_b[-j],vel_t[-j]])
+
+
+
+traj_plan_swing.send_trajectory()
