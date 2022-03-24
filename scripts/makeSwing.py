@@ -326,7 +326,7 @@ def makeTime(x_end,y_end,z_end,max_vel):
     return t_array,vel,dist
    
     
-max_vel = 10*12 #in/sec
+max_vel = 35*12 #in/sec
 t_array,vel,dist = makeTime(x_end,y_end,z_end,max_vel)
 
 print('Printing: t_array, size(t_array), vel, dist')
@@ -383,13 +383,17 @@ traj_plan_start = SimpleTrajectoryActionClient(joint_names)
 traj_plan_start.add_joint_waypoint(Joint_START,t_start,[0,0,0,0,0,0])
 traj_plan_start.send_trajectory()
 
+half_swing = int(len(long_S)/2)
+t_back = np.linspace(2,7,half_swing)
+
+
 traj_plan_swing = SimpleTrajectoryActionClient(joint_names)
 for i in range(len(t_array)):
     traj_plan_swing.add_joint_waypoint([long_S[i],long_L[i],long_U[i],long_R[i],long_B[i],long_T[i]],t_array[i]+t_start,[vel_s[i],vel_l[i],vel_u[i],vel_r[i],vel_b[i],vel_t[i]])
-for j in range(int(len(t_array)/2)):
+for j in range(int(len(t_array)/2)-1):
     j+=1
-    traj_plan_swing.add_joint_waypoint([long_S[-j],long_L[-j],long_U[-j],long_R[-j],long_B[-j],long_T[-j]],t_array[j]*2+t_start+t_array[-1],[vel_s[-j],vel_l[-j],vel_u[-j],vel_r[-j],vel_b[-j],vel_t[-j]])
+    traj_plan_swing.add_joint_waypoint([long_S[-j],long_L[-j],long_U[-j],long_R[-j],long_B[-j],long_T[-j]],t_array[-1]+t_start+t_back[j],[0,0,0,0,0,0])
 
-
+traj_plan_swing.add_joint_waypoint([long_S[40],long_L[40],long_U[40],long_R[40],long_B[40],long_T[40]],t_array[-1]+t_start+t_back[j]+2,[0,0,0,0,0,0])
 
 traj_plan_swing.send_trajectory()
