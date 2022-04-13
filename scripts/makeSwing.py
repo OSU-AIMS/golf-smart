@@ -140,7 +140,7 @@ class Robot():
         
         #Starting Vector
         v1_0 = [self.links[0]/np.sqrt(2),0,self.links[0]/np.sqrt(2)]
-        v5_0 = [self.links[4]*np.cos(np.pi/6),self.links[4]*np.cos(np.pi/12),self.links[4]*np.cos(np.pi/3)]
+        v5_0 = [0,self.links[4],0]
         
         #First rotation
         v1 = np.dot(v1_0,self.rotateAxis(angles[0], self.axis[0]))
@@ -210,7 +210,7 @@ def drawRobot2(v1,v2,v3,v4,v5):
 
 # Make a real robot 
 
-real_links = np.array([88*np.sqrt(2),400,405,876,50])
+real_links = np.array([88*np.sqrt(2),400,405,876,50.8])
 links_in = real_links*(1/25.4)
 #print(links)
 axis = [[0,0,1],[0,1,0],[0,1,0],[0,1,0],[1,0,0]]
@@ -326,7 +326,7 @@ def makeTime(x_end,y_end,z_end,max_vel):
     return t_array,vel,dist
    
     
-max_vel = 35*12 #in/sec
+max_vel = 36*12 #in/sec
 t_array,vel,dist = makeTime(x_end,y_end,z_end,max_vel)
 
 print('Printing: t_array, size(t_array), vel, dist')
@@ -334,6 +334,27 @@ print(t_array)
 print(np.size(t_array))
 print(vel)
 print(dist)
+
+#Find the joint velocities
+vel_s = [0]
+vel_l = [0]
+vel_u = [0]
+vel_r = [0]
+vel_b = [0]
+vel_t = [0]
+
+for i in range(int(len(long_S)-1)):
+    vel_s = np.append(vel_s,(long_S[i+1]-long_S[i])/(t_array[i+1]-t_array[i]))
+    vel_l = np.append(vel_l,(long_L[i+1]-long_L[i])/(t_array[i+1]-t_array[i]))
+    vel_u = np.append(vel_u,(long_U[i+1]-long_U[i])/(t_array[i+1]-t_array[i]))
+    vel_r = np.append(vel_r,(long_R[i+1]-long_R[i])/(t_array[i+1]-t_array[i]))
+    vel_b = np.append(vel_b,(long_B[i+1]-long_B[i])/(t_array[i+1]-t_array[i]))
+    vel_t = np.append(vel_t,(long_T[i+1]-long_T[i])/(t_array[i+1]-t_array[i]))
+
+print('Printing vel_s then vel_b then vel_u')
+print(vel_s)
+print(vel_b)
+print(vel_u)
 
 fig4 = plt.figure(figsize = (14,7))
 ax4 = fig4.add_subplot(1,2,1)
@@ -353,25 +374,6 @@ ax5.plot(index,T,'-o')
 plt.legend(['S','L','U','R','B','T'],fontsize = 16)
 plt.show()
 
-#Find the joint velocities
-vel_s = [0]
-vel_l = [0]
-vel_u = [0]
-vel_r = [0]
-vel_b = [0]
-vel_t = [0]
-
-for i in range(int(len(long_S)-1)):
-    vel_s = np.append(vel_s,(long_S[i+1]-long_S[i])/(t_array[i+1]-t_array[i]))
-    vel_l = np.append(vel_l,(long_L[i+1]-long_L[i])/(t_array[i+1]-t_array[i]))
-    vel_u = np.append(vel_u,(long_U[i+1]-long_U[i])/(t_array[i+1]-t_array[i]))
-    vel_r = np.append(vel_r,(long_R[i+1]-long_R[i])/(t_array[i+1]-t_array[i]))
-    vel_b = np.append(vel_b,(long_B[i+1]-long_B[i])/(t_array[i+1]-t_array[i]))
-    vel_t = np.append(vel_t,(long_T[i+1]-long_T[i])/(t_array[i+1]-t_array[i]))
-
-print('Printing vel_s then vel_u')
-print(vel_s)
-print(vel_u)
 
 
 # Swinging:
