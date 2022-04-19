@@ -1,3 +1,10 @@
+#This script contains the two original methods tried by the 2021-2022 team
+#Both of these just change the S and B joints, swinging them using a specific position/velocity graph
+#This script includes a "go to all zeros", a "gaussian model", and a "tophat" model
+
+
+
+
 import numpy as np
 import scipy.integrate as integrate
 from scipy.integrate import odeint, solve_ivp
