@@ -201,124 +201,139 @@ def Interp(theta,intervals):
 
 
 #Start While with user input
-idx = 5
-while(input("continue? (enter 1) = ") == '1'):
-    print(idx)
-    S[3],L[3],U[3],R[3],B[3],T[3] = Matrix[idx][0],Matrix[idx][1],Matrix[idx][2],Matrix[idx][3],Matrix[idx][4],Matrix[idx][5]
-    print(S[3],L[3],U[3],R[3],B[3],T[3])
-    intervals = 16
+idx = 0
+err = 0
+while(1):
+    print("Last index used: " + str(idx))
+    print(Matrix[idx])
+    uResponse = input("Press enter to increment by 1 from the previous index, or enter a new index: ")
+    if uResponse == "":
+        idx+=1
+    elif uResponse.isnumeric():
+        if int(uResponse) < len(Matrix):
+            idx= int(uResponse)
+        else:
+            print("\n\nERROR: Input was either not a number or indexed out of the bounds of the CSV file. Please try a new index...\n")
+            err = 1
+    else:
+        print("\n\nERROR: Input was either not a number or indexed out of the bounds of the CSV file. Please try a new index...\n")
+        err = 1
 
-    long_S = Interp(S,intervals)
-    long_L = Interp(L,intervals)
-    long_U = Interp(U,intervals)
-    long_R = Interp(R,intervals)
-    long_B = Interp(B,intervals)
-    long_T = Interp(T,intervals)
-                        
-    pts = len(long_R)
-    print(len(long_R))
-    print(long_R)
 
-    # Make a real robot 
-    real_links = np.array([5.464,20.97,20.97,34.5,2])
-    links = real_links*(1/20)
-    #print(links)
-    axis = [[0,0,1],[0,1,0],[0,1,0],[0,1,0],[1,0,0]]
-    anglesDesired = [S[3],L[3],U[3],R[3],B[3]-np.pi/4,T[3]]
+    if err != 1:
 
-    #Changing from normal physics conventions of angle definition to the way the robot defines them:
-    anglesConvention = [-1*anglesDesired[0],(np.pi/4-anglesDesired[1]),\
-                        (-np.pi/2+anglesDesired[2]),anglesDesired[3],anglesDesired[4],np.pi-anglesDesired[5]]
+        S[3],L[3],U[3],R[3],B[3],T[3] = Matrix[idx][0],Matrix[idx][1],Matrix[idx][2],Matrix[idx][3],Matrix[idx][4],Matrix[idx][5]
+        print(S[3],L[3],U[3],R[3],B[3],T[3])
+        intervals = 16
 
-    Moto = Robot(links = real_links, axis = axis)
-    End = Moto.findEnd(anglesConvention)
-    print([End[0],End[1],End[2]])
-    v1,v2,v3,v4,v5 = End[3],End[4],End[5],End[6],End[7]
-    x,y,z = drawRobot2(v1,v2,v3,v4,v5)
+        long_S = Interp(S,intervals)
+        long_L = Interp(L,intervals)
+        long_U = Interp(U,intervals)
+        long_R = Interp(R,intervals)
+        long_B = Interp(B,intervals)
+        long_T = Interp(T,intervals)
+                            
+        pts = len(long_R)
+        print(len(long_R))
+        print(long_R)
 
-    
+        # Make a real robot 
+        real_links = np.array([5.464,20.97,20.97,34.5,2])
+        links = real_links*(1/20)
+        #print(links)
+        axis = [[0,0,1],[0,1,0],[0,1,0],[0,1,0],[1,0,0]]
+        anglesDesired = [S[3],L[3],U[3],R[3],B[3]-np.pi/4,T[3]]
 
-    # Go from joint space to (x,y,z) space to define actual club head velocity
-    x_end = np.zeros(pts,)
-    y_end = np.zeros(pts,)
-    z_end = np.zeros(pts,)
-    dist = np.zeros(pts-1,)
-
-    for i in range(pts):
-        
-        anglesDesired = [long_S[i],long_L[i],long_U[i],long_R[i],long_B[i],long_T[i]]
         #Changing from normal physics conventions of angle definition to the way the robot defines them:
         anglesConvention = [-1*anglesDesired[0],(np.pi/4-anglesDesired[1]),\
                             (-np.pi/2+anglesDesired[2]),anglesDesired[3],anglesDesired[4],np.pi-anglesDesired[5]]
-        
+
+        Moto = Robot(links = real_links, axis = axis)
         End = Moto.findEnd(anglesConvention)
-        x_end[i],y_end[i],z_end[i] = End[0],End[1],End[2]
-    
-    #Set the max velocity at conact in ft/sec*12 inches
-    max_vel = 35*12 #in/sec
-    t_array,vel,dist = makeTime(x_end,y_end,z_end,max_vel)
+        print([End[0],End[1],End[2]])
+        v1,v2,v3,v4,v5 = End[3],End[4],End[5],End[6],End[7]
+        x,y,z = drawRobot2(v1,v2,v3,v4,v5)
 
-    #Find the joint velocities
-    vel_s = [0]
-    vel_l = [0]
-    vel_u = [0]
-    vel_r = [0]
-    vel_b = [0]
-    vel_t = [0]
-    for i in range(int(len(long_S)-1)):
-        vel_s = np.append(vel_s,(long_S[i+1]-long_S[i])/(t_array[i+1]-t_array[i]))
-        vel_l = np.append(vel_l,(long_L[i+1]-long_L[i])/(t_array[i+1]-t_array[i]))
-        vel_u = np.append(vel_u,(long_U[i+1]-long_U[i])/(t_array[i+1]-t_array[i]))
-        vel_r = np.append(vel_r,(long_R[i+1]-long_R[i])/(t_array[i+1]-t_array[i]))
-        vel_b = np.append(vel_b,(long_B[i+1]-long_B[i])/(t_array[i+1]-t_array[i]))
-        vel_t = np.append(vel_t,(long_T[i+1]-long_T[i])/(t_array[i+1]-t_array[i]))
+        
 
-    index = np.arange(0,7,1)
-    # fig4 = plt.figure(figsize = (14,7))
-    # ax4 = fig4.add_subplot(1,2,1)
-    # ax5 = fig4.add_subplot(1,2,2)
-    # ax4.plot(t_array,long_S,'-')
-    # ax4.plot(t_array,long_L,'-')
-    # ax4.plot(t_array,long_U,'-')
-    # ax4.plot(t_array,long_R,'-')
-    # ax4.plot(t_array,long_B,'-')
-    # ax4.plot(t_array,long_T,'-')
-    # ax5.plot(index,S,'-o')
-    # ax5.plot(index,L,'-o')
-    # ax5.plot(index,U,'-o')
-    # ax5.plot(index,R,'-o')
-    # ax5.plot(index,B,'-o')
-    # ax5.plot(index,T,'-o')
-    # plt.legend(['S','L','U','R','B','T'],fontsize = 16)
-    # plt.show()
+        # Go from joint space to (x,y,z) space to define actual club head velocity
+        x_end = np.zeros(pts,)
+        y_end = np.zeros(pts,)
+        z_end = np.zeros(pts,)
+        dist = np.zeros(pts-1,)
 
+        for i in range(pts):
+            
+            anglesDesired = [long_S[i],long_L[i],long_U[i],long_R[i],long_B[i],long_T[i]]
+            #Changing from normal physics conventions of angle definition to the way the robot defines them:
+            anglesConvention = [-1*anglesDesired[0],(np.pi/4-anglesDesired[1]),\
+                                (-np.pi/2+anglesDesired[2]),anglesDesired[3],anglesDesired[4],np.pi-anglesDesired[5]]
+            
+            End = Moto.findEnd(anglesConvention)
+            x_end[i],y_end[i],z_end[i] = End[0],End[1],End[2]
+        
+        #Set the max velocity at conact in ft/sec*12 inches
+        max_vel = 35*12 #in/sec
+        t_array,vel,dist = makeTime(x_end,y_end,z_end,max_vel)
 
-    # Swinging:
-    joint_names = ['joint_1_s', 'joint_2_l', 'joint_3_u', 'joint_4_r', 'joint_5_b', 'joint_6_t']
-    Joint_START = [long_S[0],long_L[0],long_U[0],long_R[0],long_B[0],long_T[0]]
-    t_start = 3
-    # go to start
-    traj_plan_start = SimpleTrajectoryActionClient(joint_names)
-    traj_plan_start.add_joint_waypoint(Joint_START,t_start,[0,0,0,0,0,0])
-    traj_plan_start.send_trajectory()
+        #Find the joint velocities
+        vel_s = [0]
+        vel_l = [0]
+        vel_u = [0]
+        vel_r = [0]
+        vel_b = [0]
+        vel_t = [0]
+        for i in range(int(len(long_S)-1)):
+            vel_s = np.append(vel_s,(long_S[i+1]-long_S[i])/(t_array[i+1]-t_array[i]))
+            vel_l = np.append(vel_l,(long_L[i+1]-long_L[i])/(t_array[i+1]-t_array[i]))
+            vel_u = np.append(vel_u,(long_U[i+1]-long_U[i])/(t_array[i+1]-t_array[i]))
+            vel_r = np.append(vel_r,(long_R[i+1]-long_R[i])/(t_array[i+1]-t_array[i]))
+            vel_b = np.append(vel_b,(long_B[i+1]-long_B[i])/(t_array[i+1]-t_array[i]))
+            vel_t = np.append(vel_t,(long_T[i+1]-long_T[i])/(t_array[i+1]-t_array[i]))
 
-    half_swing = int(len(long_S)/2)
-    t_back = np.linspace(2,7,half_swing)
-
-
-    traj_plan_swing = SimpleTrajectoryActionClient(joint_names)
-    #Do the forward swing
-    for i in range(len(t_array)):
-        traj_plan_swing.add_joint_waypoint([long_S[i],long_L[i],long_U[i],long_R[i],long_B[i],long_T[i]],t_array[i]+t_start,[vel_s[i],vel_l[i],vel_u[i],vel_r[i],vel_b[i],vel_t[i]])
-    # Swing back too the middle on the same path but slower
-    for j in range(int(len(t_array)/2)-1):
-        j+=1
-        traj_plan_swing.add_joint_waypoint([long_S[-j],long_L[-j],long_U[-j],long_R[-j],long_B[-j],long_T[-j]],t_array[-1]+t_start+t_back[j],[0,0,0,0,0,0])
-    #Go a little further than middle to get past the tee
-    traj_plan_swing.add_joint_waypoint([long_S[40],long_L[40],long_U[40],long_R[40],long_B[40],long_T[40]],t_array[-1]+t_start+t_back[j]+2,[0,0,0,0,0,0])
-
-    traj_plan_swing.send_trajectory()
+        index = np.arange(0,7,1)
+        # fig4 = plt.figure(figsize = (14,7))
+        # ax4 = fig4.add_subplot(1,2,1)
+        # ax5 = fig4.add_subplot(1,2,2)
+        # ax4.plot(t_array,long_S,'-')
+        # ax4.plot(t_array,long_L,'-')
+        # ax4.plot(t_array,long_U,'-')
+        # ax4.plot(t_array,long_R,'-')
+        # ax4.plot(t_array,long_B,'-')
+        # ax4.plot(t_array,long_T,'-')
+        # ax5.plot(index,S,'-o')
+        # ax5.plot(index,L,'-o')
+        # ax5.plot(index,U,'-o')
+        # ax5.plot(index,R,'-o')
+        # ax5.plot(index,B,'-o')
+        # ax5.plot(index,T,'-o')
+        # plt.legend(['S','L','U','R','B','T'],fontsize = 16)
+        # plt.show()
 
 
+        # Swinging:
+        joint_names = ['joint_1_s', 'joint_2_l', 'joint_3_u', 'joint_4_r', 'joint_5_b', 'joint_6_t']
+        Joint_START = [long_S[0],long_L[0],long_U[0],long_R[0],long_B[0],long_T[0]]
+        t_start = 3
+        # go to start
+        traj_plan_start = SimpleTrajectoryActionClient(joint_names)
+        traj_plan_start.add_joint_waypoint(Joint_START,t_start,[0,0,0,0,0,0])
+        traj_plan_start.send_trajectory()
 
-    idx+=1
+        half_swing = int(len(long_S)/2)
+        t_back = np.linspace(2,7,half_swing)
+
+
+        traj_plan_swing = SimpleTrajectoryActionClient(joint_names)
+        #Do the forward swing
+        for i in range(len(t_array)):
+            traj_plan_swing.add_joint_waypoint([long_S[i],long_L[i],long_U[i],long_R[i],long_B[i],long_T[i]],t_array[i]+t_start,[vel_s[i],vel_l[i],vel_u[i],vel_r[i],vel_b[i],vel_t[i]])
+        # Swing back too the middle on the same path but slower
+        for j in range(int(len(t_array)/2)-1):
+            j+=1
+            traj_plan_swing.add_joint_waypoint([long_S[-j],long_L[-j],long_U[-j],long_R[-j],long_B[-j],long_T[-j]],t_array[-1]+t_start+t_back[j],[0,0,0,0,0,0])
+        #Go a little further than middle to get past the tee
+        traj_plan_swing.add_joint_waypoint([long_S[40],long_L[40],long_U[40],long_R[40],long_B[40],long_T[40]],t_array[-1]+t_start+t_back[j]+2,[0,0,0,0,0,0])
+
+        traj_plan_swing.send_trajectory()
+    err = 0
