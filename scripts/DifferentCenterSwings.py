@@ -34,7 +34,13 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 class Robot():
     
-    #Class for the robot with lengths of links and the axis defined as they would be in the defalt zero position
+    
+    
+    """
+    This is the class for the wire frame robot used in all the scripts.
+    This is the way the forward kinematics are calculated for the hill climbs.
+    It is also useful for looking at the robot. 
+    """
     
     def __init__(self, links, axis = [[0,0,1],[0,1,0],[0,1,0],[0,1,0],[1,0,0]]):
         self.links = links
@@ -115,6 +121,12 @@ class Robot():
 
 def drawRobot2(v1,v2,v3,v4,v5):
     
+    """
+    The purpose of this function is just to convert the five vectors into
+    (x,y,z) arrays for plotting. 
+    
+    If you ever see drawRobot, that one is old so delete that
+    """
     x = np.zeros(6,)
     y = np.zeros(6,)
     z = np.zeros(6,)
@@ -130,13 +142,20 @@ def drawRobot2(v1,v2,v3,v4,v5):
     # print(y)
     # print(z)
     
-    return x,y,z
+    return x,y,z # The arrays are all just 1x6
 
 
 
 
 
 def makeTime(x_end,y_end,z_end,max_vel):
+    
+    """
+    The way velocity selection works is by dividing the distance betweeen
+    two (x,y,z) way points by the desired velocity then setting the time step 
+    between the two points to that value. In this way the times for a swing are 
+    calculated rather than specified.
+    """
     #Initalize Everything
     pts = len(x_end)
     time = 0
@@ -150,6 +169,10 @@ def makeTime(x_end,y_end,z_end,max_vel):
         vel[i] = max_vel*np.exp(-(i-(pts/2))**2/(2*sigma**2))
         
     for i in range(pts-1):
+        """
+        loops through all the small ds along the curve and add the next 
+        time based on how fast that section should be.
+        """
         dist[i] = np.sqrt((x_end[i+1]-x_end[i])**2+(y_end[i+1]-y_end[i])**2+(z_end[i+1]-z_end[i])**2)
         time = time + dist[i]/vel[i]
         t_array = np.append(t_array,time)
@@ -157,12 +180,10 @@ def makeTime(x_end,y_end,z_end,max_vel):
     return t_array,vel,dist
 
 
-
-
-
-
-
-
+"""
+The next section of the code is for reading in all the different center points
+then replacing the normal center point and swinging. 
+"""
 CenterPoints =[]
 cols = 6
 rows = 100
@@ -170,9 +191,7 @@ Matrix = []
 #csv Read
 with open('CenterPoints.csv', newline='') as csvfile:
     reader = csv.reader(csvfile)
-    next(reader)
     CenterPoints = list(reader)
-
 for i, row in enumerate(CenterPoints):
     center_pos = []
     for j,val in enumerate(row):
@@ -188,6 +207,7 @@ R = [2.492,2.250,2.019,np.pi/2,1.277,.6686,.6686]
 B = [-1.229,-1.225,-.950,0,.6196,1.362,1.526]
 T = [np.pi,np.pi,np.pi,np.pi,np.pi,np.pi,np.pi]
 
+# This just turns the 7 points into 90 points linearly spaced in joint space
 def Interp(theta,intervals):
     long_theta = [] 
     parts = np.zeros((6,intervals-1))
@@ -198,6 +218,7 @@ def Interp(theta,intervals):
         long_theta = np.append(long_theta,parts[j])
     
     return long_theta
+
 
 
 #Start While with user input
@@ -221,11 +242,14 @@ while(1):
 
 
     if err != 1:
+        
+        #Replace the normal super point center with one from the matrix of new center points
 
         S[3],L[3],U[3],R[3],B[3],T[3] = Matrix[idx][0],Matrix[idx][1],Matrix[idx][2],Matrix[idx][3],Matrix[idx][4],Matrix[idx][5]
         print(S[3],L[3],U[3],R[3],B[3],T[3])
         intervals = 16
-
+        
+        #Look at them to check 
         long_S = Interp(S,intervals)
         long_L = Interp(L,intervals)
         long_U = Interp(U,intervals)
@@ -236,10 +260,11 @@ while(1):
         pts = len(long_R)
         print(len(long_R))
         print(long_R)
-
+        
+        
         # Make a real robot 
-        real_links = np.array([5.464,20.97,20.97,34.5,2])
-        links = real_links*(1/20)
+        real_links = np.array([5.464,20.97,20.97,34.5,2]) #Inches
+        links = real_links*(1/20) #Scaling it down I guess not actually sure what the point of this is but okay
         #print(links)
         axis = [[0,0,1],[0,1,0],[0,1,0],[0,1,0],[1,0,0]]
         anglesDesired = [S[3],L[3],U[3],R[3],B[3]-np.pi/4,T[3]]
@@ -247,7 +272,8 @@ while(1):
         #Changing from normal physics conventions of angle definition to the way the robot defines them:
         anglesConvention = [-1*anglesDesired[0],(np.pi/4-anglesDesired[1]),\
                             (-np.pi/2+anglesDesired[2]),anglesDesired[3],anglesDesired[4],np.pi-anglesDesired[5]]
-
+            
+        #Calling and instance of the robot class
         Moto = Robot(links = real_links, axis = axis)
         End = Moto.findEnd(anglesConvention)
         print([End[0],End[1],End[2]])
@@ -310,7 +336,14 @@ while(1):
         # plt.legend(['S','L','U','R','B','T'],fontsize = 16)
         # plt.show()
 
-
+        """
+        Here is where the actual swinging starts and the communication with the robot.
+        The way the commands work is sending position and velocity goals at set times.
+        Everything in the middle is determined at some lower level where I assume some
+        kind of boundary condition calculations are happening. If you send enough commands
+        over a short amount of time, you can come close to complete control of the robot. 
+        
+        """
         # Swinging:
         joint_names = ['joint_1_s', 'joint_2_l', 'joint_3_u', 'joint_4_r', 'joint_5_b', 'joint_6_t']
         Joint_START = [long_S[0],long_L[0],long_U[0],long_R[0],long_B[0],long_T[0]]
