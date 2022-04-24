@@ -10,6 +10,12 @@ import random as random
 from mpl_toolkits.mplot3d import Axes3D
 from IPython.display import HTML
 
+
+"""
+The point of this script is to make a bunch of different center points that have
+different club angles but the same point of contact. 
+
+"""
 index = np.arange(0,7,1)
 
 # NEW SUPER POINTS
@@ -42,36 +48,15 @@ long_R = Interp(R,intervals)
 long_B = Interp(B,intervals)
 long_T = Interp(T,intervals)
                      
-pts = len(long_R)
-print(len(long_R))
-print(long_R)
-
-t_start = 0
-t_end =3
-delta_t = t_end/pts
-t_pts = np.arange(t_start,t_end,delta_t)
-
-fig2 = plt.figure(figsize = (14,7))
-ax2 = fig2.add_subplot(1,2,1)
-ax3 = fig2.add_subplot(1,2,2)
-ax2.plot(t_pts,long_S,'-')
-ax2.plot(t_pts,long_L,'-')
-ax2.plot(t_pts,long_U,'-')
-ax2.plot(t_pts,long_R,'-')
-ax2.plot(t_pts,long_B,'-')
-ax2.plot(t_pts,long_T,'-')
-ax3.plot(index,S,'-o')
-ax3.plot(index,L,'-o')
-ax3.plot(index,U,'-o')
-ax3.plot(index,R,'-o')
-ax3.plot(index,B,'-o')
-ax3.plot(index,T,'-o')
-plt.legend(['S','L','U','R','B','T'],fontsize = 16)
-plt.show()
-
 
 class Robot():
     
+     
+    """
+    This is the class for the wire frame robot used in all the scripts.
+    This is the way the forward kinematics are calculated for the hill climbs.
+    It is also useful for looking at the robot. 
+    """
     #Class for the robot with lengths of links and the axis defined as they would be in the defalt zero position
     
     def __init__(self, links, axis = [[0,0,1],[0,1,0],[0,1,0],[0,1,0],[1,0,0]]):
@@ -154,6 +139,13 @@ class Robot():
 
 def drawRobot2(v1,v2,v3,v4,v5):
     
+    """
+    The purpose of this function is just to convert the five vectors into
+    (x,y,z) arrays for plotting. 
+    
+    If you ever see drawRobot, that one is old so delete that
+    """
+    
     x = np.zeros(6,)
     y = np.zeros(6,)
     z = np.zeros(6,)
@@ -172,20 +164,10 @@ def drawRobot2(v1,v2,v3,v4,v5):
     return x,y,z
 
 # Make a real robot 
-
-real_links = np.array([88*np.sqrt(2),400,405,876,50.8])
+real_links = np.array([88*np.sqrt(2),400,405,876,50.8]) #mm
 links_in = real_links*(1/25.4)
 #print(links)
 axis = [[0,0,1],[0,1,0],[0,1,0],[0,1,0],[1,0,0]]
-
-# NEW SUPER POINTS
-S = [-np.pi/2,-np.pi/3,-np.pi/6,0,np.pi/6,np.pi/3,np.pi/2-.2]
-L = [.0799,.4289,.7338,.8011,.7617,.7616,.6299]
-U = [.5850,.250,-.1047,-.1047,.1899,.8684,1.133]
-R = [2.492,2.250,2.019,np.pi/2,1.277,.6686,.6686]
-B = [-1.229,-1.225,-.950,0,.6196,1.362,1.526]
-T = [np.pi,np.pi,np.pi,np.pi,np.pi,np.pi,np.pi]
-
 
 #anglesDesired = [np.pi/4,0,0,np.pi/2,np.pi/2,0]
 anglesDesired = [S[3],L[3],U[3],R[3],B[3]-np.pi/4,T[3]]
@@ -211,16 +193,19 @@ x,y,z = drawRobot2(v1,v2,v3,v4,v5)
 
 
 #Make a bunch of center points with a -5 to 5 degree spread for B and T
-theta_start = -3*np.pi/180
-theta_end = 3*np.pi/180
-d_theta = (theta_end-theta_start)/3
+theta_start = -5*np.pi/180
+theta_end = 5*np.pi/180
+d_theta = (theta_end-theta_start)/10 # This number squared is the number of center points created
 angle_range = np.arange(theta_start,theta_end,d_theta)
-
+print(angle_range)
 anglesDesired = [S[3],L[3],U[3],R[3],B[3],T[3]]
+
 
 #Changing from normal physics conventions of angle definition to the way the robot defines them:
 anglesConvention = [-1*anglesDesired[0],(np.pi/4-anglesDesired[1]),\
-                    (-np.pi/2+anglesDesired[2]),anglesDesired[3],-1*anglesDesired[4],np.pi-anglesDesired[5]]
+                    (-np.pi/2+anglesDesired[2]),-1*anglesDesired[3],-1*anglesDesired[4],np.pi-anglesDesired[5]]
+
+print(anglesConvention)
 
 num = int(len(angle_range))
 print(num)
@@ -229,6 +214,13 @@ print(size)
 matrix_index = 0;
 Angles_Matrix = np.zeros((6,size),)
 
+"""
+Below is the start of the hill climb. This is a very simple algorithm that randomly
+walks around and only takes the improving steps to find a minumum.
+This could certainly be improved but it actually works quite well and is reasonably fast.
+Creating 100 points takes maybe 10 minutes but then you never have to make them again
+This is just order 1 too so 200 points would take 20 minutes etc. 
+"""
 for i in range(int(len(angle_range))):
     for j in range(int(len(angle_range))):
         
@@ -239,11 +231,11 @@ for i in range(int(len(angle_range))):
 
         
         angles = angles_start #First Try       
-        step = 5e-3 #Step size for the hill searching
+        step = 1e-2 #Step size for the hill searching
         dist = Moto.distanceFromTarget(Target,angles) #How far it is from the home positon at the beginning 
 
 
-        for k in range(2000): #Hill climb starts
+        for k in range(1000): #Hill climb starts
 
             #print(angles)
             dist = Moto.distanceFromTarget(Target,angles) #Try something
@@ -274,29 +266,40 @@ for i in range(int(len(angle_range))):
         matrix_index +=1
 
 Matrix = np.transpose(Angles_Matrix)
-print(Matrix[0])
+print(Matrix[2])
 
 
+"""
+Since I had to switch to angle convention for this script, we have to 
+switch back to the desired angles that the robot understands
 
-backToDesired = np.zeros([9,6])
+"""
 
-i = 4
-backToDesired[i,:] = [-1*Matrix[i][0],((Matrix[i][1]-np.pi/4)*-1),\
-                (np.pi/2+Matrix[i][2]),Matrix[i][3],-1*Matrix[i][4],-1*(Matrix[i][5]-np.pi)]
-S[3],L[3],U[3],R[3],B[3],T[3] = backToDesired[i,:]
-#Plot them all
+
+backToDesired = np.zeros([size,6])
 # creating an empty canvas
-fig = plt.figure(figsize = (15,10))
-ax = fig.add_subplot(1,1,1)
-ax.plot(index,S,'-o',index,L,'-o',index,U,'-o',index,R,'-o',index,B,'-o',index,T,'-o')
-plt.legend(['S','L','U','R','B','T'],fontsize = 16)
-ax.set_title('Human Swing Joint Space',fontsize = 16)
-ax.set_xlabel('Time',fontsize = 14)
-ax.set_ylabel('radians',fontsize = 14)
-plt.show()
-print(backToDesired[0])
+#fig = plt.figure(figsize = (15,15))
 
+for i in range(size):
+    backToDesired[i,:] = [-1*Matrix[i][0],((Matrix[i][1]-np.pi/4)*-1),\
+                    (np.pi/2+Matrix[i][2]),-1*Matrix[i][3],-1*Matrix[i][4],(Matrix[i][5]-np.pi)*-1]
+    S[3],L[3],U[3],R[3],B[3],T[3] = backToDesired[i,:]
+    i+=1
+    #Plot them all
+    
+#     ax = fig.add_subplot(num,num,i+1)
+#     ax.plot(index,S,'-o',index,L,'-o',index,U,'-o',index,R,'-o',index,B,'-o',index,T,'-o')
+#     #plt.legend(['S','L','U','R','B','T'],fontsize = 12)
+#     ax.set_title('Human Swing Joint Space',fontsize = 18)
+#     ax.set_xlabel('Waypoint',fontsize = 16)
+#     ax.set_ylabel('Radians',fontsize = 16)
+
+#     #print(backToDesired[0])
+# plt.show()
+
+#Write the angles to a csv with no headers
 import csv
-with open('CenterPoint.csv', 'w', newline='') as f:
+with open('CenterPoints2.csv', 'w', encoding='UTF8', newline='') as f:
     writer = csv.writer(f)
+    # write the data
     writer.writerows(backToDesired)
