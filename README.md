@@ -46,12 +46,13 @@ variableSwings_old.py
  
  
 If the end goal is some kind of very accurate machine learning based chipping robot, I think there are going to be few important things to consider:
-    - The hardware needs to be really consistent and repeatable. The way the club is loaded into the holder is currently based on judgment in terms of 
-      how the club face is angled. This really should be exact and repeatable or data collected two different days won't agree. 
-    - I think it would also be worthwhile to go back to the "base" swing and spend some time deciding exactly where the tee should be for that shot. Ideally
-      That would be the perfect straight shot and everything else would be some variation from this. I don't think we spent quite enough time to be precise on this.
-    - From the machine learning perspective, it is going to be important to get more reliable shot data for both training and validation. 
-    - Also from the machine learning side, it is important to remember that the hill climb inverse kinematics has some random aspect to it so two hill climbs will not
-      always find the same minumum. Whatever learned policy that maps desired shot charateristics to swing needs to output center point angles for all six angles
-      instead of just B and T and hill climb to find the others. 
+ - The hardware needs to be really consistent and repeatable. The way the club is loaded into the holder is currently based on judgment in terms of 
+   how the club face is angled. This really should be exact and repeatable or data collected two different days won't agree. 
+ - I think it would also be worthwhile to go back to the "base" swing and spend some time deciding exactly where the tee should be for that shot. Ideally
+   That would be the perfect straight shot and everything else would be some variation from this. I don't think we spent quite enough time to be precise on this.
+ - From the machine learning perspective, it is going to be important to get more reliable shot data for both training and validation. 
+ - Also from the machine learning side, it is important to remember that the hill climb inverse kinematics has some random aspect to it so two hill climbs will not
+   always find the same minumum. Whatever learned policy that maps desired shot charateristics to swing needs to output center point angles for all six angles
+   instead of just B and T and hill climb to find the others. 
+
  
