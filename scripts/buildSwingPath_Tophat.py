@@ -1,3 +1,27 @@
+#!/usr/bin/env python3
+#
+# Software License Agreement (Apache 2.0 License)
+# Copyright (c) 2022, The Ohio State University
+#
+# Author: C. Cooper
+#
+# Description:
+# This script contains the original TOP-HAT MODEL method created by the 2021-22 Robotic Golf Capstone team
+# Only the S and B joints are modified to create a path of specific position and velocity through time.
+
+"""
+The point of the tophat swing is to lengthing the amount of time a joint is at its max velocity compared to the gaussian swing
+The tophat is built with two sigmoid functions flipped on top of each other.
+
+You are able to define the amplituide and the time for the swing to occur. 
+The width is calculated so that the integral matches how much angle needs to be swept out
+"""
+
+
+###########
+# Imports #
+###########
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -8,15 +32,11 @@ from mpl_toolkits.mplot3d import Axes3D
 
 from trajectory_action_client import SimpleTrajectoryActionClient
 
-import sys
 
-"""
-The point of the tophat swing is to lengthing the amount of time a joint is at its max velocity compared to the gaussian swing
-The tophat is built with two sigmoid functions flipped on top of each other.
+#####################
+# Support Functions #
+#####################
 
-You are able to define the amplituide and the time for the swing to occur. 
-The width is calculated so that the integral matches how much angle needs to be swept out
-"""
 def sigmoid(amp,width,center,t_pts,mag_vel):
     vel = np.zeros(len(t_pts))
     n = 10*mag_vel
@@ -52,16 +72,17 @@ def num_integrate(vel,t_pts):
     return theta 
 
 
+
+######################
+# TopHat Swing Model #
+######################
+
 def tophat_swing_define(Joint_START,Joint_END,amp_s,amp_b,swing_time,delta_t):
 
-
+    # Variables
+    t_start = 2
     mag_vel = np.sqrt(amp_s**2+amp_b**2) # This is to keep the 'n' variable in check
-    t_start = 2 # time to go back to zero
-    # go to start
-    traj_plan_start = SimpleTrajectoryActionClient(joint_names)
-    traj_plan_start.add_joint_waypoint(Joint_START,t_start,[0,0,0,0,0,0])
-    traj_plan_start.send_trajectory()
-
+    
     t_0 = 0
     t_end = swing_time
     t_pts = np.arange(t_0,t_end,delta_t)
@@ -99,43 +120,72 @@ def tophat_swing_define(Joint_START,Joint_END,amp_s,amp_b,swing_time,delta_t):
     traj_plan_swing = SimpleTrajectoryActionClient(joint_names)
     for i in range(len(t_pts)):
         traj_plan_swing.add_joint_waypoint([S[i],L[i],U[i],R[i],B[i],T[i]],t_pts[i]+t_start+1,[vel_s[i],vel_l[i],vel_u[i],vel_r[i],vel_b[i],vel_t[i]])
-    traj_plan_swing.send_trajectory()
+
     print(B)
     print(S)
 
 
-    fig4= plt.figure(figsize = (14,7))
+    ################################
+    ## Plotting Generate Path Plan
 
-    # defining the axis
+    # Setup Figure
+    fig4= plt.figure(figsize = (7,4))
+    fig4.suptitle('Joint Path Plan using a TOP-HAT Model', fontsize='large', fontweight='bold')
+
+    # Define Axis
     ax_S2 = fig4.add_subplot(1,2,1)
     ax_B2 = fig4.add_subplot(1,2,2)
 
-    #Plotting the velocity and positions on each other
+    # Plotting the velocity and positions on each other
+    # 'S' Joint
     ax_S2.plot(t_pts,vel_s,'red')
     ax_S2.plot(t_pts,S,'blue')
     ax_S2.set_title('S Joint')
+    ax_S2.legend(['Velocity','Position'])
+
+    # 'B' Joint
     ax_B2.plot(t_pts,vel_b,'red')
     ax_B2.plot(t_pts,B,'blue')
     ax_B2.set_title('B Joint')
+    ax_B2.legend(['Velocity','Position'])
+    
+    # Export Figure
+    plt.savefig('pathPlan_TopHatModel.png')
 
-    # Showing the above plot
-    plt.legend(['Velocity','Position'])
-    plt.show()
+    return traj_plan_swing
 
 
 
 
+########
+# Main #
+########
 
-## Main
+if __name__ == '__main__':
 
-joint_names = ['joint_1_s', 'joint_2_l', 'joint_3_u', 'joint_4_r', 'joint_5_b', 'joint_6_t']
+    ## Build Swing Path Plan (and Trajectory)
 
-## tophat curve
-Joint_START = [-np.pi/2,np.pi/24,-np.pi/4,np.pi/2,-np.pi/3,np.pi]
-Joint_END = [np.pi/2,np.pi/24,-np.pi/4,np.pi/2,np.pi/3,np.pi]
-amp_s = 4
-amp_b = 7
-swing_time = 2
-delta_t = swing_time/1000
-tophat_swing_define(Joint_START,Joint_END,amp_s,amp_b,swing_time,delta_t)
-        
+    # Robot Parameters
+    # joint_names = rospy.get_param('controller_joint_names')
+    joint_names = ['joint_1_s', 'joint_2_l', 'joint_3_u', 'joint_4_r', 'joint_5_b', 'joint_6_t']
+
+    # Path Start/End Joint Positions 
+    Joint_START = [-np.pi/4, np.pi/24, -np.pi/4, np.pi/2, -np.pi/3, np.pi]
+    Joint_END   = [ np.pi/4, np.pi/24, -np.pi/4, np.pi/2,  np.pi/3, np.pi]
+
+    # Path Shape Parameters
+    amp_s = 4
+    amp_b = 7
+    swing_time = 2
+    delta_t = swing_time/1000
+
+    # Generate Swing Path
+    swing_trajectory = tophat_swing_define(Joint_START, Joint_END, amp_s, amp_b, swing_time, delta_t)
+
+
+    ## Execute Path Plan
+    
+    # Send Full Trajectory
+    swing_trajectory.send_trajectory()
+
+#EOF
