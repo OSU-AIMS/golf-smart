@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+#
+# Software License Agreement (Apache 2.0 License)
+# Copyright (c) 2022, The Ohio State University
+#
+# Author: C. Cooper
+#
+# Description:
+# Base swing model. Exactly follows the Super Points which shape the base swing.
+# Builds trajectory using waypoints and executes motion to robot.
+
 
 ###########
 # Imports #
@@ -12,6 +23,10 @@ from mpl_toolkits.mplot3d import Axes3D
 
 from trajectory_action_client import SimpleTrajectoryActionClient
 
+
+######################
+## Swing Parameters ##
+######################
 
 index = np.arange(0,7,1)
 # print(index)
@@ -31,8 +46,6 @@ B = [-1.229,-1.225,-.950,0,.6196,1.362,1.526]
 T = [np.pi,np.pi,np.pi,np.pi,np.pi,np.pi,np.pi]
 
 
-
-
 #Plot them all
 # creating an empty canvas
 fig = plt.figure(figsize = (15,10))
@@ -45,9 +58,11 @@ ax.set_ylabel('radians',fontsize = 14)
 plt.show()
 
 
+###############################
+## Support Class & Functions ##
+###############################
 
 intervals = 16
-
 
 def Interp(theta,intervals):
     long_theta = [] 

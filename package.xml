@@ -20,7 +20,9 @@
   <!-- META DATA -->
   <license>Apache 2.0</license>
   <author>Adam Buynak</author>
-  <maintainer email="acbuynak@gmail.com">Adam Buynak. AIMS Lab @ The Ohio State University</maintainer>
+  <author>Carson Cooper</author>
+  <author>Mike Schoenleb</author>
+  <maintainer email="buynak.9@osu.com">Adam Buynak. AIMS Lab @ The Ohio State University</maintainer>
 
 
   <!-- DEPENDENCIES -->

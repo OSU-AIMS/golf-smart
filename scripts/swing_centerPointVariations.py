@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+#
+# Software License Agreement (Apache 2.0 License)
+# Copyright (c) 2022, The Ohio State University
+#
+# Author: C. Cooper
+#
+# Description:
+# Load in `CenterPoints.csv` file where each row is a swings center (ball impact) point.
+# Loops through all and executes each swing on robot.
+
 
 #############
 ## Imports ##
@@ -14,6 +25,9 @@ from mpl_toolkits.mplot3d import Axes3D
 from trajectory_action_client import SimpleTrajectoryActionClient
 
 
+###############################
+## Support Class & Functions ##
+###############################
 
 
 class Robot():

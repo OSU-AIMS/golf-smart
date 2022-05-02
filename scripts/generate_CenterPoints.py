@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+#
+# Software License Agreement (Apache 2.0 License)
+# Copyright (c) 2022, The Ohio State University
+#
+# Author: C. Cooper
+#
+# Description:
+# Generate ~100 different center points and export as a csv file.
+# Each center point is a semi-random variation (joint-space) on the SuperPoints swing.
+# Each center point results in different club angles but the same point of contact. 
 
 
 #############
@@ -15,11 +26,10 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 
-"""
-The point of this script is to make a bunch of different center points that have
-different club angles but the same point of contact. 
+######################
+## Swing Parameters ##
+######################
 
-"""
 index = np.arange(0,7,1)
 
 # NEW SUPER POINTS
@@ -33,6 +43,10 @@ T = [np.pi,np.pi,np.pi,np.pi,np.pi,np.pi,np.pi]
 
 intervals = 16
 
+
+###############################
+## Support Class & Functions ##
+###############################
 
 def Interp(theta,intervals):
     long_theta = [] 
