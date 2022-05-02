@@ -18,7 +18,12 @@ Description of all the scripts:
  |buildSwingPath_Gauss.py| This script runs the old Gaussian curve model for a swing. |
  |buildSwingPath_Tophat.py| This script runs the old Tophat model for a swing.|
  
-
+ Examples for what the Gauss and Tophat models ouput:
+ 
+ |Model | Output | 
+ | ----|-----|
+ |Gauss|<img src="https://github.com/OSU-AIMS/golf-smart/blob/refactor/docs/pathPlan_GaussModel.png?raw=true" width="500">|
+ |Tophat|<img src="https://github.com/OSU-AIMS/golf-smart/blob/refactor/docs/pathPlan_TopHatModel.png?raw=true" width="500">|
 
 
 Extra Notes:
