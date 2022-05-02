@@ -1,33 +1,17 @@
+
+#############
+## Imports ##
+#############
+
 import numpy as np
-import scipy.integrate as integrate
-from scipy.integrate import odeint, solve_ivp
 import csv
 
 import matplotlib.pyplot as plt
 from matplotlib import animation, rc
 from mpl_toolkits import mplot3d
-import random as random
 from mpl_toolkits.mplot3d import Axes3D
-from IPython.display import HTML
-
 
 from trajectory_action_client import SimpleTrajectoryActionClient
-
-import csv
-import os
-import sys
-import rospy
-import actionlib
-import time
-import math
-
-from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
-from sensor_msgs.msg import JointState
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-
-
-
-
 
 
 

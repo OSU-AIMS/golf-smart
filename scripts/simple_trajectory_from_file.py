@@ -1,19 +1,11 @@
 
 
+import rospy
+import os
+import numpy as np
 
 from trajectory_action_client import SimpleTrajectoryActionClient
-import numpy as np
-import csv
-import os
 
-import rospy
-import actionlib
-import time
-import math
-
-from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
-from sensor_msgs.msg import JointState
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
 
 

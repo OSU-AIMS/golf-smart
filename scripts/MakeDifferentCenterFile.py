@@ -1,6 +1,10 @@
+
+
+#############
+## Imports ##
+#############
+
 import numpy as np
-import scipy.integrate as integrate
-from scipy.integrate import odeint, solve_ivp
 import csv
 
 import matplotlib.pyplot as plt
@@ -8,7 +12,7 @@ from matplotlib import animation, rc
 from mpl_toolkits import mplot3d
 import random as random
 from mpl_toolkits.mplot3d import Axes3D
-from IPython.display import HTML
+
 
 
 """

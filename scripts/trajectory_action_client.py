@@ -14,8 +14,6 @@
 
 import rospy
 import actionlib
-import time
-import math
 
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
 from sensor_msgs.msg import JointState
