@@ -225,14 +225,15 @@ def Interp(theta,intervals):
 idx = 0
 err = 0
 while(1):
-    print("Last index used: " + str(idx))
+    print("Last index used: " + str(idx+1))
     print(Matrix[idx])
-    uResponse = input("Press enter to increment by 1 from the previous index, or enter a new index: ")
+    increment = '2'
+    uResponse = input("Press enter to increment by " + increment + " from the previous index, or enter a new index (ctrl Z to exit): ")
     if uResponse == "":
-        idx+=1
+        idx+=int(increment)
     elif uResponse.isnumeric():
         if int(uResponse) < len(Matrix):
-            idx= int(uResponse)
+            idx= int(uResponse)-1
         else:
             print("\n\nERROR: Input was either not a number or indexed out of the bounds of the CSV file. Please try a new index...\n")
             err = 1
@@ -335,6 +336,8 @@ while(1):
         # ax5.plot(index,T,'-o')
         # plt.legend(['S','L','U','R','B','T'],fontsize = 16)
         # plt.show()
+        print('Printing vel_s')
+        print(vel_s)
 
         """
         Here is where the actual swinging starts and the communication with the robot.
