@@ -16,6 +16,9 @@
 
 import numpy as np
 
+# import matplotlib
+# matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 from matplotlib import animation, rc
 from mpl_toolkits import mplot3d
@@ -53,11 +56,12 @@ fig = plt.figure(figsize = (15,10))
 ax = fig.add_subplot(1,1,1)
 ax.plot(index,S,'-o',index,L,'-o',index,U,'-o',index,R,'-o',index,B,'-o',index,T,'-o')
 plt.legend(['S','L','U','R','B','T'],fontsize = 16)
-ax.set_title('Human Swing Joint Space',fontsize = 16)
+ax.set_title('Fig1: Human Swing Joint Space',fontsize = 16)
 ax.set_xlabel('Time',fontsize = 14)
 ax.set_ylabel('radians',fontsize = 14)
-plt.show()
 
+# plt.show()
+plt.savefig("fig1_HumanSwing_JointSpace.png")
 
 
 ##########
@@ -98,7 +102,7 @@ ax3.plot(index,R,'-o')
 ax3.plot(index,B,'-o')
 ax3.plot(index,T,'-o')
 plt.legend(['S','L','U','R','B','T'],fontsize = 16)
-plt.show()
+plt.suptitle("Fig2: Joint Positions in Joint Space \nfrom Interp Function")
 
 # plt.show()
 plt.savefig("fig2_jointPosn_fromInterp.png")
@@ -143,6 +147,8 @@ x,y,z = drawRobot2(v1,v2,v3,v4,v5)
 #print(z) 
 
 
+### Plot ###
+
 # creating an empty canvas
 fig = plt.figure(figsize = (7,7))
 
@@ -156,12 +162,12 @@ ax.set_zlim(-30,20)
 # plotting a 3D line graph with X-coordinate,
 # Y-coordinate and Z-coordinate respectively
 ax.plot3D(x,y,z, 'red')
+plt.title('Fig3: Model Orientation of Robot',fontsize=13)
+
+# plt.show()
+plt.savefig("fig3_ModelRobotOrientation.png")
 
 
- 
-# Showing the above plot
-plt.title('Model Orientation of Robot',fontsize=13)
-plt.show()
 
 x_end = np.zeros(pts,)
 y_end = np.zeros(pts,)
@@ -195,9 +201,10 @@ ax2.set_zlim(-30,20)
 # Y-coordinate and Z-coordinate respectively
 ax2.plot3D(x_end,y_end,z_end, 'red')
 # Showing the above plot
-plt.title('Swing Path',fontsize=13)
-plt.show()
+plt.title('Fig4: Swing Path',fontsize=13)
 
+# plt.show()
+plt.savefig('fig4_swingPath.png')
 
 
 
@@ -252,6 +259,9 @@ print(vel_s)
 print(vel_b)
 print(vel_u)
 
+
+### Figure ###
+
 fig4 = plt.figure(figsize = (14,7))
 ax4 = fig4.add_subplot(1,2,1)
 ax5 = fig4.add_subplot(1,2,2)
@@ -268,8 +278,10 @@ ax5.plot(index,R,'-o')
 ax5.plot(index,B,'-o')
 ax5.plot(index,T,'-o')
 plt.legend(['S','L','U','R','B','T'],fontsize = 16)
-plt.show()
+plt.suptitle('Fig5: Joint Positions vs Time')
 
+# plt.show()
+plt.savefig('fig5_jointPosn_vs_time.png')
 
 
 # Swinging:
